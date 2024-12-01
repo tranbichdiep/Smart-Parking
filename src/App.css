@@ -4,9 +4,9 @@
   flex-wrap: wrap;
   gap: 20px;
   border: 1px solid #e0e0e0;
-  padding: 30px;
+  padding: 25px;
   max-width: 1350px;
-  margin: 20px auto;
+  margin: 10px auto;
   background-color: #ffffff;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   border-radius: 20px;
@@ -198,7 +198,7 @@
 /* Responsiveness */
 /* General Responsive for Small Screens */
 /* Responsive for Small Screens */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .container {
     flex-direction: column;
     gap: 20px;
@@ -224,8 +224,8 @@
   }
 
   .captured-image, .live-cam {
-    height: auto; /* Đặt chiều cao tự động để không bị mất */
-    min-height: 200px; /* Đảm bảo chiều cao tối thiểu để phần tử vẫn hiển thị */
+    height: auto; 
+    min-height: 200px; 
   }
 
   .captured-image img, .image-placeholder, .video-placeholder {
@@ -236,10 +236,10 @@
   .stat {
     width: 100%;
   }
-}
+} */
 
 /* Responsive for Very Small Screens (e.g., 480px) */
-@media (max-width: 480px) {
+/* @media (max-width: 480px) {
   .container {
     padding: 20px;
     margin: 10px;
@@ -266,17 +266,17 @@
 
   .captured-image, .live-cam {
     height: auto;
-    min-height: 180px; /* Giữ chiều cao tối thiểu để đảm bảo hiển thị */
+    min-height: 180px; 
   }
 
   .captured-image img, .image-placeholder, .video-placeholder {
     height: 180px;
     width: 100%;
   }
-}
+} */
 
 /* Responsive for Extra Small Screens (e.g., 320px) */
-@media (max-width: 320px) {
+/* @media (max-width: 320px) {
   .container {
     padding: 10px;
     margin: 5px;
@@ -302,11 +302,11 @@
 
   .captured-image, .live-cam {
     height: auto;
-    min-height: 150px; /* Giữ chiều cao tối thiểu để phần tử không biến mất */
+    min-height: 150px; 
   }
 
   .captured-image img, .image-placeholder, .video-placeholder {
     height: 150px;
     width: 100%;
   }
-}
+} */
