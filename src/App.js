@@ -41,25 +41,26 @@ function App() {
     <div className="container">
       {/* Bảng điều khiển bên trái */}
       <div className="left-panel">
-        <div className="input-group">
-          <label htmlFor="idCard">ID thẻ quẹt:</label>
-          <input
-            type="text"
-            id="idCard"
-            value={idCard}
-            onChange={(e) => setIdCard(e.target.value)}
-            placeholder="Nhập ID thẻ"
-          />
-        </div>
-        <div className="input-group">
-          <label htmlFor="entryTime">Thời gian vào:</label>
-          <input
-            type="text"
-            id="entryTime"
-            value={entryTime}
-            onChange={(e) => setEntryTime(e.target.value)}
-            placeholder="Nhập thời gian vào"
-          />
+        <div className="input-container">
+          <div className="input-group">
+            <label htmlFor="idCard">Số thẻ:</label>
+            <input
+              type="text"
+              id="idCard"
+              value={idCard}
+              onChange={(e) => setIdCard(e.target.value)}
+              placeholder="ID thẻ"
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="entryTime">Thời gian quẹt:</label>
+            <input
+              type="datetime-local"
+              id="entryTime"
+              value={entryTime}
+              onChange={(e) => setEntryTime(e.target.value)}
+            />
+          </div>
         </div>
         <div className="stats">
           <div className="stat">
@@ -80,11 +81,10 @@ function App() {
           </button>
         </div>
       </div>
-
+  
       {/* Bảng điều khiển bên phải */}
       <div className="right-panel">
         <div className="captured-image">
-          <h3>Ảnh chụp được (biển số xe)</h3>
           {capturedImage ? (
             <img src={capturedImage} alt="Biển số xe" />
           ) : (
@@ -94,7 +94,6 @@ function App() {
           )}
         </div>
         <div className="live-cam">
-          <h3>Live cam (view ảnh động)</h3>
           <div className="video-placeholder">Live Video (Chưa kết nối)</div>
         </div>
       </div>
