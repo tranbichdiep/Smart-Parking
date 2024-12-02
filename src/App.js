@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import './App.css'; // Thêm CSS để làm đẹp giao diện
+import React, { useState } from "react";
+import "./App.css"; // Thêm CSS để làm đẹp giao diện
 
 function App() {
   // State quản lý dữ liệu
-  const [idCard, setIdCard] = useState('');
-  const [entryTime, setEntryTime] = useState('');
+  const [idCard, setIdCard] = useState("");
+  const [entryTime, setEntryTime] = useState("");
   const [totalIn, setTotalIn] = useState(0);
   const [totalOut, setTotalOut] = useState(0);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -12,29 +12,29 @@ function App() {
   // Xử lý khi nhấn nút "Xác nhận"
   const handleConfirm = () => {
     if (!idCard || !entryTime) {
-      alert('Vui lòng nhập đầy đủ thông tin ID thẻ và thời gian vào!');
+      alert("⚠️Vui lòng nhập đầy đủ thông tin ID thẻ và thời gian vào!");
       return;
     }
 
     // Cập nhật tổng xe vào
     setTotalIn(totalIn + 1);
-    alert(`Xác nhận thành công! ID thẻ: ${idCard}, Thời gian: ${entryTime}`);
+    alert(`✅Xác nhận thành công! ID thẻ: ${idCard}, Thời gian: ${entryTime}`);
 
     // Reset input
-    setIdCard('');
-    setEntryTime('');
+    setIdCard("");
+    setEntryTime("");
   };
 
   // Xử lý khi nhấn nút "Hủy"
   const handleCancel = () => {
-    setIdCard('');
-    setEntryTime('');
-    alert('Đã hủy thông tin.');
+    setIdCard("");
+    setEntryTime("");
+    alert("Đã hủy thông tin.");
   };
 
   // Giả lập tải ảnh biển số
   const loadCapturedImage = () => {
-    setCapturedImage('https://via.placeholder.com/150'); // Link ảnh giả lập
+    setCapturedImage("https://via.placeholder.com/150"); // Link ảnh giả lập
   };
 
   return (
@@ -42,26 +42,58 @@ function App() {
       {/* Bảng điều khiển bên trái */}
       <div className="left-panel">
         <div className="input-container">
+          {/* Thẻ vào */}
           <div className="input-group">
-            <label htmlFor="idCard">Số thẻ:</label>
+            <label htmlFor="idCardIn">ID thẻ vào:</label>
             <input
               type="text"
-              id="idCard"
+              id="idCardIn"
               value={idCard}
               onChange={(e) => setIdCard(e.target.value)}
-              placeholder="ID thẻ"
+              placeholder="ID thẻ vào"
             />
           </div>
+          {/* Thời gian vào */}
           <div className="input-group">
-            <label htmlFor="entryTime">Thời gian quẹt:</label>
+            <label htmlFor="entryTimeIn">Thời gian vào:</label>
             <input
               type="datetime-local"
-              id="entryTime"
+              id="entryTimeIn"
               value={entryTime}
               onChange={(e) => setEntryTime(e.target.value)}
             />
           </div>
         </div>
+
+        <div className="input-container">
+          {/* Thẻ ra */}
+          <div className="input-group">
+            <label htmlFor="idCardOut">ID thẻ ra:</label>
+            <input
+              type="text"
+              id="idCardOut"
+              value={idCard}
+              onChange={(e) => setIdCard(e.target.value)}
+              placeholder="ID thẻ ra"
+            />
+          </div>
+          {/* Thời gian ra */}
+          <div className="input-group">
+            <label htmlFor="entryTimeOut">Thời gian ra:</label>
+            <input
+              type="datetime-local"
+              id="entryTimeOut"
+              value={entryTime}
+              onChange={(e) => setEntryTime(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="parking-fee">
+          <label>Phí gửi xe:</label>
+          <div className="fee-amount">5000 VNĐ</div>
+        </div>
+
         <div className="stats">
           <div className="stat">
             <h3>Tổng vào</h3>
@@ -69,7 +101,7 @@ function App() {
           </div>
           <div className="stat">
             <h3>Tổng ra</h3>
-            <p>{totalOut}</p>
+            <p >{totalOut}</p>
           </div>
         </div>
         <div className="buttons">
@@ -81,7 +113,7 @@ function App() {
           </button>
         </div>
       </div>
-  
+
       {/* Bảng điều khiển bên phải */}
       <div className="right-panel">
         <div className="captured-image">

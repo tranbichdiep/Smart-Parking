@@ -1,4 +1,3 @@
-/* Container */
 .container {
   display: flex;
   flex-wrap: wrap;
@@ -10,10 +9,9 @@
   background-color: #ffffff;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   border-radius: 20px;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
 }
 
-/* Panels */
 .left-panel {
   flex: 1;
   min-width: 350px;
@@ -30,17 +28,15 @@
   gap: 25px;
 }
 
-/* Input Container */
 .input-container {
   display: flex;
   gap: 20px;
-  align-items: flex-start; /* Căn chỉnh các thành phần theo chiều trên */
+  align-items: flex-start;
   margin-bottom: 20px;
   width: 100%;
   justify-content: space-between;
 }
 
-/* Input Group */
 .input-group {
   flex: 1;
   display: flex;
@@ -72,7 +68,35 @@
   box-shadow: 0 0 10px rgba(0, 123, 255, 0.2);
 }
 
-/* Stats */
+.parking-fee {
+  justify-content: space-between;
+  display: flex;
+  flex: 0.75;
+  flex-direction: column;
+  align-items: center;
+  /* margin-top: 10px; */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #e0e0e0; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  justify-content: center;
+  
+}
+
+.parking-fee label {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.fee-amount {
+  font-size: 30px;
+  font-weight: bold;
+  color: red;
+  margin-top: 5px;
+}
+
 .stats {
   display: flex;
   justify-content: space-between;
@@ -84,23 +108,23 @@
   flex: 1;
   text-align: center;
   border: 1px solid #dcdcdc;
-  padding: 20px;
+  padding: 10px;
   background-color: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  font-size: 16px;
+  font-size: 20px;
   color: #333333;
   font-weight: bold;
 }
 
-/* Buttons */
 .buttons {
   display: flex;
   justify-content: space-between;
   gap: 20px;
 }
 
-.confirm-btn, .cancel-btn {
+.confirm-btn,
+.cancel-btn {
   flex: 1;
   padding: 15px 30px;
   font-size: 16px;
@@ -131,8 +155,8 @@
   transform: scale(1.05);
 }
 
-/* Right Panel */
-.captured-image, .live-cam {
+.captured-image,
+.live-cam {
   border: 1px solid #dcdcdc;
   padding: 25px;
   text-align: center;
@@ -146,7 +170,9 @@
   height: 250px;
 }
 
-.captured-image img, .image-placeholder, .video-placeholder {
+.captured-image img,
+.image-placeholder,
+.video-placeholder {
   width: 100%;
   height: 250px;
   background-color: #eeeeee;
@@ -161,7 +187,6 @@
   transition: all 0.3s ease;
 }
 
-/* Image Placeholder */
 .image-placeholder {
   cursor: pointer;
   background-color: lightgray;
@@ -178,7 +203,6 @@
   background-color: #bbb;
 }
 
-/* Video Placeholder */
 .video-placeholder {
   background-color: lightgray;
   width: 100%;
@@ -194,119 +218,3 @@
 .video-placeholder:hover {
   background-color: #aaa;
 }
-
-/* Responsiveness */
-/* General Responsive for Small Screens */
-/* Responsive for Small Screens */
-/* @media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .left-panel, .right-panel {
-    min-width: 100%;
-  }
-
-  .buttons {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .input-container {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .stats {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .captured-image, .live-cam {
-    height: auto; 
-    min-height: 200px; 
-  }
-
-  .captured-image img, .image-placeholder, .video-placeholder {
-    height: 200px;
-    width: 100%;
-  }
-
-  .stat {
-    width: 100%;
-  }
-} */
-
-/* Responsive for Very Small Screens (e.g., 480px) */
-/* @media (max-width: 480px) {
-  .container {
-    padding: 20px;
-    margin: 10px;
-  }
-
-  .input-group label {
-    font-size: 14px;
-  }
-
-  .input-group input {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .buttons {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .stats {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .captured-image, .live-cam {
-    height: auto;
-    min-height: 180px; 
-  }
-
-  .captured-image img, .image-placeholder, .video-placeholder {
-    height: 180px;
-    width: 100%;
-  }
-} */
-
-/* Responsive for Extra Small Screens (e.g., 320px) */
-/* @media (max-width: 320px) {
-  .container {
-    padding: 10px;
-    margin: 5px;
-  }
-
-  .input-group input {
-    padding: 8px;
-    font-size: 13px;
-  }
-
-  .buttons {
-    gap: 8px;
-  }
-
-  .confirm-btn, .cancel-btn {
-    padding: 8px 15px;
-    font-size: 12px;
-  }
-
-  .stat h3, .stat p {
-    font-size: 14px;
-  }
-
-  .captured-image, .live-cam {
-    height: auto;
-    min-height: 150px; 
-  }
-
-  .captured-image img, .image-placeholder, .video-placeholder {
-    height: 150px;
-    width: 100%;
-  }
-} */
