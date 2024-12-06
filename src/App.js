@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./App.css"; // Thêm CSS để làm đẹp giao diện
+import VideoStream from "./components/VideoStream";
 
 function App() {
   // State quản lý dữ liệu
@@ -126,7 +127,7 @@ function App() {
           )}
         </div>
         <div className="live-cam">
-          <div className="video-placeholder">Live Video (Chưa kết nối)</div>
+          <VideoStream />
         </div>
       </div>
     </div>
