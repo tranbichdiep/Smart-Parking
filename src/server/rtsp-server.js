@@ -12,7 +12,7 @@ const startStream = () => {
 
   const stream = new Stream({
     name: 'camera',
-    streamUrl: 'rtsp://admin:diep@166.117.30.1:8554/live', // Đưa thông tin xác thực vào URL
+    streamUrl: 'rtsp://admin:diep@192.168.33.141:8554/live', // Đưa thông tin xác thực vào URL
     wsPort: 9999,
     ffmpegOptions: {
       '-rtsp_transport': 'tcp',

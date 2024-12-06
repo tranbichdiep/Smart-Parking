@@ -12,7 +12,7 @@
     "node-rtsp-stream": "^0.0.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
