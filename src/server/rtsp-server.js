@@ -1,3 +1,4 @@
+require('dotenv').config();
 const Stream = require('node-rtsp-stream');
 
 const startStream = () => {
@@ -12,7 +13,7 @@ const startStream = () => {
 
   const stream = new Stream({
     name: 'camera',
-    streamUrl: 'rtsp://admin:diep@192.168.33.141:8554/live', // Đưa thông tin xác thực vào URL
+    streamUrl: `rtsp://${process.env.RTSP_USERNAME}:${process.env.RTSP_PASSWORD}@${process.env.RTSP_IP}:${process.env.RTSP_PORT}${process.env.RTSP_PATH}`,
     wsPort: 9999,
     ffmpegOptions: {
       '-rtsp_transport': 'tcp',
