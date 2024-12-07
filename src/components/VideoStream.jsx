@@ -1,23 +1,32 @@
 import React, { useEffect, useRef, forwardRef } from 'react';
 import JSMpeg from '@cycjimmy/jsmpeg-player';
-import html2canvas from 'html2canvas';
 
 const VideoStream = forwardRef(({ onCapture }, ref) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
-  const containerRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const captureFrame = async (callback) => {
-    if (containerRef.current) {
+    if (playerRef.current && videoRef.current) {
       try {
-        const canvas = await html2canvas(containerRef.current, {
-          useCORS: true,
-          logging: false,
-          backgroundColor: null,
-          scale: 2 // Tăng chất lượng ảnh
-        });
+        // Tạo canvas tạm thời để vẽ frame
+        const tempCanvas = document.createElement('canvas');
+        const context = tempCanvas.getContext('2d');
         
-        const imageUrl = canvas.toDataURL('image/jpeg', 1.0);
+        // Lấy kích thước thực của video
+        const videoWidth = videoRef.current.clientWidth;
+        const videoHeight = videoRef.current.clientHeight;
+        
+        // Đặt kích thước canvas bằng với kích thước video
+        tempCanvas.width = videoWidth;
+        tempCanvas.height = videoHeight;
+        
+        // Vẽ frame hiện tại từ video lên canvas
+        context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
+        
+        // Chuyển đổi canvas thành URL ảnh
+        const imageUrl = tempCanvas.toDataURL('image/jpeg', 0.95);
+        
         if (callback) {
           callback(imageUrl);
         }
@@ -25,7 +34,7 @@ const VideoStream = forwardRef(({ onCapture }, ref) => {
           onCapture(imageUrl);
         }
       } catch (error) {
-        console.error('Error capturing frame:', error);
+        console.error('Lỗi khi chụp frame:', error);
       }
     }
   };
@@ -51,7 +60,7 @@ const VideoStream = forwardRef(({ onCapture }, ref) => {
           });
           playerRef.current = player;
         } catch (error) {
-          console.error('Error initializing video player:', error);
+          console.error('Lỗi khởi tạo player:', error);
         }
       }
     };
@@ -63,7 +72,7 @@ const VideoStream = forwardRef(({ onCapture }, ref) => {
         try {
           playerRef.current.destroy();
         } catch (error) {
-          console.error('Error destroying player:', error);
+          console.error('Lỗi khi hủy player:', error);
         }
       }
     };
@@ -74,7 +83,7 @@ const VideoStream = forwardRef(({ onCapture }, ref) => {
   }));
 
   return (
-    <div className="video-container" ref={containerRef}>
+    <div className="video-container">
       <canvas
         ref={videoRef}
         style={{
