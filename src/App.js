@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./App.css"; // Thêm CSS để làm đẹp giao diện
 import VideoStream from "./components/VideoStream";
+import RFIDReader from "./components/RFIDReader";
 
 function App() {
   // State quản lý dữ liệu
@@ -38,8 +39,24 @@ function App() {
     setCapturedImage("https://via.placeholder.com/150"); // Link ảnh giả lập
   };
 
+  const handleCardRead = (cardId) => {
+    setIdCard(cardId);
+    // Tự động set thời gian hiện tại khi đọc thẻ
+    const now = new Date().toISOString().slice(0, 16);
+    setEntryTime(now);
+  };
+
+  const handleCaptureImage = () => {
+    // Xử lý chụp ảnh khi đọc thẻ thành công
+    loadCapturedImage();
+  };
+
   return (
     <div className="container">
+      <RFIDReader 
+        onCardRead={handleCardRead}
+        onCaptureImage={handleCaptureImage}
+      />
       {/* Bảng điều khiển bên trái */}
       <div className="left-panel">
         <div className="input-container">
@@ -101,7 +118,7 @@ function App() {
             <p>{totalIn}</p>
           </div>
           <div className="stat">
-            <h3>Tổng ra</h3>
+            <h3>T��ng ra</h3>
             <p >{totalOut}</p>
           </div>
         </div>
