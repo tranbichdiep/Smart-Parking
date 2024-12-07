@@ -41,6 +41,10 @@ const VideoStream = forwardRef(({ onCapture }, ref) => {
             autoplay: true,
             audio: false,
             loop: true,
+            videoBufferSize: 1024*1024*2,
+            maxAudioLag: 0.5,
+            videoQuality: 1,
+            preserveDrawingBuffer: true,
             onDestroy: () => {
               playerRef.current = null;
             }
