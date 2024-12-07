@@ -218,3 +218,18 @@
 .video-placeholder:hover {
   background-color: #aaa;
 }
+
+.video-container {
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.video-container canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}

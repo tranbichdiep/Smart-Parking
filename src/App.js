@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./App.css"; // Thêm CSS để làm đẹp giao diện
 import VideoStream from "./components/VideoStream";
 import RFIDReader from "./components/RFIDReader";
@@ -10,6 +10,7 @@ function App() {
   const [totalIn, setTotalIn] = useState(0);
   const [totalOut, setTotalOut] = useState(0);
   const [capturedImage, setCapturedImage] = useState(null);
+  const videoStreamRef = useRef(null);
 
   // Xử lý khi nhấn nút "Xác nhận"
   const handleConfirm = () => {
@@ -47,8 +48,11 @@ function App() {
   };
 
   const handleCaptureImage = () => {
-    // Xử lý chụp ảnh khi đọc thẻ thành công
-    loadCapturedImage();
+    if (videoStreamRef.current) {
+      videoStreamRef.current.captureFrame((imageUrl) => {
+        setCapturedImage(imageUrl);
+      });
+    }
   };
 
   return (
@@ -118,7 +122,7 @@ function App() {
             <p>{totalIn}</p>
           </div>
           <div className="stat">
-            <h3>T��ng ra</h3>
+            <h3>Tổng ra</h3>
             <p >{totalOut}</p>
           </div>
         </div>
@@ -144,7 +148,7 @@ function App() {
           )}
         </div>
         <div className="live-cam">
-          <VideoStream />
+          <VideoStream ref={videoStreamRef} />
         </div>
       </div>
     </div>

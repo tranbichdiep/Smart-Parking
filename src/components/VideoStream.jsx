@@ -1,9 +1,34 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, forwardRef } from 'react';
 import JSMpeg from '@cycjimmy/jsmpeg-player';
+import html2canvas from 'html2canvas';
 
-const VideoStream = () => {
+const VideoStream = forwardRef(({ onCapture }, ref) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
+  const containerRef = useRef(null);
+
+  const captureFrame = async (callback) => {
+    if (containerRef.current) {
+      try {
+        const canvas = await html2canvas(containerRef.current, {
+          useCORS: true,
+          logging: false,
+          backgroundColor: null,
+          scale: 2 // Tăng chất lượng ảnh
+        });
+        
+        const imageUrl = canvas.toDataURL('image/jpeg', 1.0);
+        if (callback) {
+          callback(imageUrl);
+        }
+        if (onCapture) {
+          onCapture(imageUrl);
+        }
+      } catch (error) {
+        console.error('Error capturing frame:', error);
+      }
+    }
+  };
 
   useEffect(() => {
     let player = null;
@@ -30,30 +55,32 @@ const VideoStream = () => {
     initPlayer();
 
     return () => {
-      if (player) {
+      if (playerRef.current) {
         try {
-          player.destroy();
+          playerRef.current.destroy();
         } catch (error) {
           console.error('Error destroying player:', error);
         }
       }
-      playerRef.current = null;
     };
   }, []);
 
+  React.useImperativeHandle(ref, () => ({
+    captureFrame
+  }));
+
   return (
-    <div className="video-container" style={{ width: '100%', height: '100%' }}>
+    <div className="video-container" ref={containerRef}>
       <canvas
         ref={videoRef}
         style={{
           width: '100%',
           height: '100%',
-          objectFit: 'contain',
-          backgroundColor: '#000'
+          objectFit: 'contain'
         }}
       />
     </div>
   );
-};
+});
 
 export default VideoStream; 

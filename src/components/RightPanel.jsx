@@ -41,7 +41,15 @@ const RightPanel = ({ capturedImage, loadCapturedImage }) => {
     <div style={styles.panel}>
       <div style={styles.imageContainer}>
         {capturedImage ? (
-          <img src={capturedImage} alt="Biển số xe" style={{ width: '100%', height: '100%' }} />
+          <img 
+            src={capturedImage} 
+            alt="Captured frame" 
+            style={{ 
+              width: '100%', 
+              height: '100%',
+              objectFit: 'contain'
+            }} 
+          />
         ) : (
           <div style={styles.imagePlaceholder} onClick={loadCapturedImage}>
             Nhấn để tải ảnh
