@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 
 const RFIDReader = ({ onCardRead, onCaptureImage }) => {
   const [status, setStatus] = useState('Đang kết nối...');
@@ -10,7 +10,7 @@ const RFIDReader = ({ onCardRead, onCaptureImage }) => {
   const retryDelay = 3000;
   const [retryCount, setRetryCount] = useState(0);
 
-  const connectWebSocket = () => {
+  const connectWebSocket = useCallback(() => {
     try {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.close();
@@ -35,6 +35,25 @@ const RFIDReader = ({ onCardRead, onCaptureImage }) => {
             onCardRead(data.cardId);
             setStatus(`Đã đọc thẻ: ${data.cardId}`);
             setTimeout(onCaptureImage, 100);
+          } else if (data.type === 'parking') {
+            fetch('http://localhost:3001/api/slots', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                slots: data.slots
+              })
+            })
+              .then(response => response.json())
+              .then(result => {
+                if (!result.success) {
+                  console.error('Failed to update parking slots:', result.error);
+                }
+              })
+              .catch(error => {
+                console.error('Error updating parking slots:', error);
+              });
           }
         } catch (err) {
           console.error('Lỗi xử lý dữ liệu:', err);
@@ -51,7 +70,7 @@ const RFIDReader = ({ onCardRead, onCaptureImage }) => {
       ws.onclose = () => {
         console.log('Mất kết nối với ESP32');
         setStatus('Mất kết nối - Đang thử kết nối lại...');
-        
+
         if (retryCount < maxRetries) {
           clearTimeout(reconnectTimeoutRef.current);
           reconnectTimeoutRef.current = setTimeout(() => {
@@ -68,7 +87,7 @@ const RFIDReader = ({ onCardRead, onCaptureImage }) => {
       console.error('Lỗi khởi tạo kết nối:', err);
       setError(`Lỗi: ${err.message}`);
     }
-  };
+  }, [onCardRead, onCaptureImage, retryCount, maxRetries, retryDelay]);
 
   useEffect(() => {
     connectWebSocket();
@@ -81,12 +100,12 @@ const RFIDReader = ({ onCardRead, onCaptureImage }) => {
         clearTimeout(reconnectTimeoutRef.current);
       }
     };
-  }, []);
+  }, [connectWebSocket]);
 
   return (
     <div style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '5px', marginBottom: '20px' }}>
       <div style={{ marginBottom: '10px' }}>
-        <strong>Trạng thái:</strong> 
+        <strong>Trạng thái:</strong>
         <span style={{ color: error ? 'red' : 'green' }}>{status}</span>
       </div>
       {error && (
