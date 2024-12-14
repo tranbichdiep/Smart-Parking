@@ -13,25 +13,64 @@ function App() {
   const videoStreamRef = useRef(null);
 
   // Xử lý khi nhấn nút "Xác nhận"
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!idCard || !entryTime) {
       alert("⚠️Vui lòng nhập đầy đủ thông tin ID thẻ và thời gian vào!");
       return;
     }
 
-    // Cập nhật tổng xe vào
-    setTotalIn(totalIn + 1);
-    alert(`✅Xác nhận thành công! ID thẻ: ${idCard}, Thời gian: ${entryTime}`);
+    try {
+      // Kiểm tra xem có phải xe ra không
+      const exitTimeValue = document.getElementById('entryTimeOut').value;
+      if (exitTimeValue) {
+        // Xe ra - xóa record và cập nhật counter
+        const deleteResponse = await fetch(`http://localhost:3001/api/records/delete/${idCard}`, {
+          method: 'DELETE'
+        });
+        
+        const deleteData = await deleteResponse.json();
+        if (deleteData.success) {
+          setTotalOut(prev => prev + 1);
+          alert(`✅Xác nhận xe ra thành công! ID thẻ: ${idCard}`);
+        } else {
+          throw new Error('Không thể xóa record');
+        }
+      } else {
+        // Xe vào - tạo record mới
+        const response = await fetch('http://localhost:3001/api/records', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            cardId: idCard,
+            imageUrl: capturedImage,
+            timestamp: entryTime
+          })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          setTotalIn(prev => prev + 1);
+          alert(`✅Xác nhận xe vào thành công! ID thẻ: ${idCard}`);
+        }
+      }
 
-    // Reset input
-    setIdCard("");
-    setEntryTime("");
+      handleCancel(); // Reset form sau khi xác nhận
+    } catch (error) {
+      console.error('Error handling confirmation:', error);
+      alert('❌Có lỗi xảy ra khi xử lý yêu cầu');
+    }
   };
 
   // Xử lý khi nhấn nút "Hủy"
   const handleCancel = () => {
     setIdCard("");
     setEntryTime("");
+    setCapturedImage(null);
+    // Reset các trường input
+    document.getElementById('idCardOut').value = "";
+    document.getElementById('entryTimeOut').value = "";
     alert("Đã hủy thông tin.");
   };
 
@@ -41,35 +80,36 @@ function App() {
   };
 
   const handleCardRead = async (cardId) => {
-    setIdCard(cardId);
-    const now = new Date().toISOString().slice(0, 16);
-    setEntryTime(now);
-    
-    if (videoStreamRef.current) {
-      videoStreamRef.current.captureFrame(async (imageUrl) => {
-        setCapturedImage(imageUrl);
+    try {
+      // Kiểm tra thẻ trong database
+      const checkResponse = await fetch(`http://localhost:3001/api/records/check/${cardId}`);
+      const checkData = await checkResponse.json();
+      
+      if (checkData.success) {
+        // Thẻ đã tồn tại - Xe ra
+        const record = checkData.data;
+        setIdCard(record.cardId);
+        setEntryTime(new Date(record.timestamp).toISOString().slice(0, 16));
+        setCapturedImage(record.imageUrl);
         
-        try {
-          const response = await fetch('http://localhost:3001/api/records', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              cardId,
-              imageUrl,
-              timestamp: now
-            })
+        // Cập nhật giao diện cho xe ra
+        const exitTime = new Date().toISOString().slice(0, 16);
+        document.getElementById('idCardOut').value = record.cardId;
+        document.getElementById('entryTimeOut').value = exitTime;
+      } else {
+        // Thẻ mới - Xe vào
+        const now = new Date().toISOString().slice(0, 16);
+        setIdCard(cardId);
+        setEntryTime(now);
+        
+        if (videoStreamRef.current) {
+          videoStreamRef.current.captureFrame((imageUrl) => {
+            setCapturedImage(imageUrl);
           });
-          
-          const data = await response.json();
-          if (!data.success) {
-            console.error('Error saving parking record:', data.error);
-          }
-        } catch (error) {
-          console.error('Error calling API:', error);
         }
-      });
+      }
+    } catch (error) {
+      console.error('Error checking card:', error);
     }
   };
 
