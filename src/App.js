@@ -40,11 +40,37 @@ function App() {
     setCapturedImage("https://via.placeholder.com/150"); // Link ảnh giả lập
   };
 
-  const handleCardRead = (cardId) => {
+  const handleCardRead = async (cardId) => {
     setIdCard(cardId);
-    // Tự động set thời gian hiện tại khi đọc thẻ
     const now = new Date().toISOString().slice(0, 16);
     setEntryTime(now);
+    
+    if (videoStreamRef.current) {
+      videoStreamRef.current.captureFrame(async (imageUrl) => {
+        setCapturedImage(imageUrl);
+        
+        try {
+          const response = await fetch('http://localhost:3001/api/records', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              cardId,
+              imageUrl,
+              timestamp: now
+            })
+          });
+          
+          const data = await response.json();
+          if (!data.success) {
+            console.error('Error saving parking record:', data.error);
+          }
+        } catch (error) {
+          console.error('Error calling API:', error);
+        }
+      });
+    }
   };
 
   const handleCaptureImage = () => {
