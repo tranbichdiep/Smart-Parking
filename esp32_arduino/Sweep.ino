@@ -215,6 +215,7 @@ void checkParkingSlots()
 {
   bool changed = false;
   bool slots[4];
+  String changedSlots = "";
 
   // Đọc trạng thái các cảm biến
   slots[0] = digitalRead(IR_SLOT1_PIN) == LOW;
@@ -229,23 +230,22 @@ void checkParkingSlots()
     {
       changed = true;
       parkingSlots[i] = slots[i];
-
       // Bật/tắt LED tương ứng
       digitalWrite(LED_SLOT1_PIN + i, slots[i] ? HIGH : LOW);
+
+      // Thêm slot thay đổi vào chuỗi JSON
+      if (changedSlots.length() > 0)
+      {
+        changedSlots += ",";
+      }
+      changedSlots += "\"" + String(i + 1) + "\":" + (slots[i] ? "true" : "false");
     }
   }
 
-  // Nếu có thay đổi, gửi cập nhật qua WebSocket
+  // Chỉ gửi thông tin khi có slot thay đổi
   if (changed)
   {
-    String jsonResponse = "{\"type\":\"parking\",\"slots\":[";
-    for (int i = 0; i < 4; i++)
-    {
-      jsonResponse += parkingSlots[i] ? "true" : "false";
-      if (i < 3)
-        jsonResponse += ",";
-    }
-    jsonResponse += "]}";
+    String jsonResponse = "{\"type\":\"parking\",\"changes\":{" + changedSlots + "}}";
     webSocket.broadcastTXT(jsonResponse);
   }
 }

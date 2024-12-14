@@ -35,14 +35,14 @@ const RFIDReader = ({ onCardRead, onCaptureImage }) => {
             onCardRead(data.cardId);
             setStatus(`Đã đọc thẻ: ${data.cardId}`);
             setTimeout(onCaptureImage, 100);
-          } else if (data.type === 'parking') {
+          } else if (data.type === 'parking' && data.changes) {
             fetch('http://localhost:3001/api/slots', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                slots: data.slots
+                changes: data.changes
               })
             })
               .then(response => response.json())

@@ -2,11 +2,11 @@ const ParkingSlot = require('../models/ParkingSlot');
 
 exports.updateSlots = async (req, res) => {
     try {
-        const { slots } = req.body; // slots là mảng boolean [true, false, true, false]
+        const { changes } = req.body; // changes là object: { "1": true, "3": false }
 
-        // Cập nhật từng slot
-        const updatePromises = slots.map((isOccupied, index) => {
-            return ParkingSlot.findOneAndUpdate({ slotNumber: index + 1 }, {
+        // Tạo mảng promises chỉ cho những slot thay đổi
+        const updatePromises = Object.entries(changes).map(([slotNumber, isOccupied]) => {
+            return ParkingSlot.findOneAndUpdate({ slotNumber: parseInt(slotNumber) }, {
                 isOccupied,
                 lastUpdated: new Date()
             }, { upsert: true, new: true });
@@ -16,7 +16,7 @@ exports.updateSlots = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: 'Updated parking slots successfully'
+            message: 'Updated changed parking slots successfully'
         });
     } catch (error) {
         res.status(500).json({
