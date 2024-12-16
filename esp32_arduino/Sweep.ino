@@ -6,16 +6,19 @@
 #include <ESP32Servo.h>
 
 // Định nghĩa chân kết nối RFID-RC522
-#define RST_PIN 22   // Chân cảm biến RST
-#define SS_PIN 21    // Chân cảm biến SS
-#define IR_PIN 5     // Chân cảm biến IR
-#define SERVO_PIN 25 // Chân điều khiển servo
+#define RST_PIN 22    // Chân cảm biến RST
+#define SS_PIN 21     // Chân cảm biến SS
+#define IR_PIN 5      // Chân cảm biến IR
+#define IR_OUT_PIN 33 // IR cảm biến chỗ 7
+#define SERVO_PIN 34  // Chân điều khiển servo
 
 // Định nghĩa chân cho 4 cảm biến IR và LED tương ứng
 #define IR_SLOT1_PIN 13 // IR cảm biến chỗ 1
-#define IR_SLOT2_PIN 14 // IR cảm biến chỗ 2
-#define IR_SLOT3_PIN 15 // IR cảm biến chỗ 3
-#define IR_SLOT4_PIN 16 // IR cảm biến chỗ 4
+#define IR_SLOT2_PIN 12 // IR cảm biến chỗ 2
+#define IR_SLOT3_PIN 14 // IR cảm biến chỗ 3
+#define IR_SLOT4_PIN 27 // IR cảm biến chỗ 4
+#define IR_SLOT5_PIN 26 // IR cảm biến chỗ 5
+#define IR_SLOT6_PIN 25 // IR cảm biến chỗ 6
 
 #define LED_SLOT1_PIN 17 // LED chỗ 1
 #define LED_SLOT2_PIN 18 // LED chỗ 2
