@@ -16,7 +16,7 @@ const RFIDReader = ({ onCardRead, onCaptureImage }) => {
         wsRef.current.close();
       }
 
-      const ws = new WebSocket('ws://192.168.33.117:9999');
+      const ws = new WebSocket('ws://192.168.95.110:9999');
       wsRef.current = ws;
 
       ws.onopen = () => {

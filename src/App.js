@@ -10,6 +10,8 @@ function App() {
   const [totalIn, setTotalIn] = useState(0);
   const [totalOut, setTotalOut] = useState(0);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [idCardOut, setIdCardOut] = useState("");
+  const [exitTime, setExitTime] = useState("");
   const videoStreamRef = useRef(null);
 
   // Xử lý khi nhấn nút "Xác nhận"
@@ -67,8 +69,9 @@ function App() {
   const handleCancel = () => {
     setIdCard("");
     setEntryTime("");
+    setIdCardOut("");
+    setExitTime("");
     setCapturedImage(null);
-    // Reset các trường input
     document.getElementById('idCardOut').value = "";
     document.getElementById('entryTimeOut').value = "";
     alert("Đã hủy thông tin.");
@@ -93,9 +96,11 @@ function App() {
         setCapturedImage(record.imageUrl);
         
         // Cập nhật giao diện cho xe ra
-        const exitTime = new Date().toISOString().slice(0, 16);
+        const exitTimeValue = new Date().toISOString().slice(0, 16);
+        setIdCardOut(record.cardId);
+        setExitTime(exitTimeValue);
         document.getElementById('idCardOut').value = record.cardId;
-        document.getElementById('entryTimeOut').value = exitTime;
+        document.getElementById('entryTimeOut').value = exitTimeValue;
       } else {
         // Thẻ mới - Xe vào
         const now = new Date().toISOString().slice(0, 16);
@@ -160,8 +165,8 @@ function App() {
             <input
               type="text"
               id="idCardOut"
-              value={idCard}
-              onChange={(e) => setIdCard(e.target.value)}
+              value={idCardOut}
+              onChange={(e) => setIdCardOut(e.target.value)}
               placeholder="ID thẻ ra"
             />
           </div>
@@ -171,8 +176,8 @@ function App() {
             <input
               type="datetime-local"
               id="entryTimeOut"
-              value={entryTime}
-              onChange={(e) => setEntryTime(e.target.value)}
+              value={exitTime}
+              onChange={(e) => setExitTime(e.target.value)}
             />
           </div>
         </div>
