@@ -6,11 +6,12 @@
 #include <ESP32Servo.h>
 
 // Định nghĩa chân kết nối RFID-RC522
-#define RST_PIN 22    // Chân cảm biến RST
-#define SS_PIN 21     // Chân cảm biến SS
-#define IR_PIN 5      // Chân cảm biến IR
-#define IR_OUT_PIN 33 // IR cảm biến chỗ 7
-#define SERVO_PIN 34  // Chân điều khiển servo
+#define RST_PIN 22       // Chân cảm biến RST
+#define SS_PIN 21        // Chân cảm biến SS
+#define IR_PIN 25        // Chân cảm biến IR
+#define SERVO_PIN 34     // Chân điều khiển servo
+#define SERVO_OUT_PIN 35 // Chân điều khiển servo cổng ra
+#define IR_OUT_PIN 33    // Chân cảm biến IR cổng ra
 
 // Định nghĩa chân cho 4 cảm biến IR và LED tương ứng
 #define IR_SLOT1_PIN 13 // IR cảm biến chỗ 1
@@ -18,7 +19,7 @@
 #define IR_SLOT3_PIN 14 // IR cảm biến chỗ 3
 #define IR_SLOT4_PIN 27 // IR cảm biến chỗ 4
 #define IR_SLOT5_PIN 26 // IR cảm biến chỗ 5
-#define IR_SLOT6_PIN 25 // IR cảm biến chỗ 6
+#define IR_SLOT6_PIN 5  // IR cảm biến chỗ 6
 
 #define LED_SLOT1_PIN 17 // LED chỗ 1
 #define LED_SLOT2_PIN 18 // LED chỗ 2
@@ -39,9 +40,13 @@ bool isGateOpen = false;
 int currentAngle = 0; // Góc hiện tại của servo
 const int STEP = 5;   // Số độ thay đổi mỗi bước
 const int DELAY = 50; // Delay giữa các bước (ms)
+Servo exitGateServo;
+bool isPersonPresentAtExit = false;
+bool isExitGateOpen = false;
+int currentExitAngle = 0;
 
 // Biến trạng thái chỗ đỗ xe
-bool parkingSlots[4] = {false, false, false, false}; // false = trống, true = có xe
+bool parkingSlots[6] = {false, false, false, false, false, false}; // false = trống, true = có xe
 
 void setup()
 {
@@ -82,12 +87,13 @@ void setup()
   pinMode(IR_SLOT2_PIN, INPUT);
   pinMode(IR_SLOT3_PIN, INPUT);
   pinMode(IR_SLOT4_PIN, INPUT);
+  pinMode(IR_SLOT5_PIN, INPUT);
+  pinMode(IR_SLOT6_PIN, INPUT);
 
-  // Khởi tạo chân cho LEDs
-  pinMode(LED_SLOT1_PIN, OUTPUT);
-  pinMode(LED_SLOT2_PIN, OUTPUT);
-  pinMode(LED_SLOT3_PIN, OUTPUT);
-  pinMode(LED_SLOT4_PIN, OUTPUT);
+  // Thêm vào sau phần khởi tạo servo cổng vào
+  pinMode(IR_OUT_PIN, INPUT);
+  exitGateServo.attach(SERVO_OUT_PIN);
+  exitGateServo.write(0); // Đóng cổng ra khi khởi động
 }
 
 void loop()
@@ -95,55 +101,84 @@ void loop()
   server.handleClient();
   webSocket.loop();
 
-  // Đọc trạng thái cảm biến IR
+  // Đọc trạng thái cảm biến IR cổng vào và ra
   bool irState = digitalRead(IR_PIN);
+  bool irOutState = digitalRead(IR_OUT_PIN);
 
-  // Kiểm tra có người không
+  // Xử lý cổng vào
   if (irState == LOW && !isPersonPresent)
-  { // Điều chỉnh LOW/HIGH tùy theo cảm biến của bạn
+  {
     isPersonPresent = true;
-    Serial.println("Phát hiện người, sẵn sàng quét thẻ");
+    Serial.println("Phát hiện người ở cổng vào, sẵn sàng quét thẻ");
   }
 
-  // Chỉ quét thẻ khi có người
+  // Xử lý cổng ra
+  if (irOutState == LOW && !isPersonPresentAtExit)
+  {
+    isPersonPresentAtExit = true;
+    Serial.println("Phát hiện người ở cổng ra, sẵn sàng quét thẻ");
+  }
+
+  // Quét thẻ cho cổng vào
   if (isPersonPresent && rfid.PICC_IsNewCardPresent() && rfid.PICC_ReadCardSerial())
   {
     String cardID = "";
-
-    // Đọc ID của thẻ
     for (byte i = 0; i < rfid.uid.size; i++)
     {
       cardID += String(rfid.uid.uidByte[i], HEX);
     }
 
-    // Gửi ID thẻ qua WebSocket
-    String jsonResponse = "{\"cardId\"😕"
-                          " + cardID + "\"}";
+    String jsonResponse = "{\"cardId\":\"" + cardID + "\",\"type\":\"entry\"}";
     webSocket.broadcastTXT(jsonResponse);
-
-    Serial.println("Thẻ được quét: " + cardID);
-
-    // Mở cổng
+    Serial.println("Thẻ được quét tại cổng vào: " + cardID);
     openGateSmooth();
-
     rfid.PICC_HaltA();
     rfid.PCD_StopCrypto1();
   }
 
-  // Kiểm tra người đã đi qua chưa
+  // Quét thẻ cho cổng ra
+  if (isPersonPresentAtExit && rfid.PICC_IsNewCardPresent() && rfid.PICC_ReadCardSerial())
+  {
+    String cardID = "";
+    for (byte i = 0; i < rfid.uid.size; i++)
+    {
+      cardID += String(rfid.uid.uidByte[i], HEX);
+    }
+
+    String jsonResponse = "{\"cardId\":\"" + cardID + "\",\"type\":\"exit\"}";
+    webSocket.broadcastTXT(jsonResponse);
+    Serial.println("Thẻ được quét tại cổng ra: " + cardID);
+    openExitGateSmooth();
+    rfid.PICC_HaltA();
+    rfid.PCD_StopCrypto1();
+  }
+
+  // Kiểm tra người đã đi qua cổng vào chưa
   if (irState == HIGH && isPersonPresent)
-  { // Không còn phát hiện người
+  {
     isPersonPresent = false;
     if (isGateOpen)
     {
-      delay(1000); // Đợi 1 giây
+      delay(1000);
       closeGateSmooth();
-      Serial.println("Đóng cổng");
+      Serial.println("Đóng cổng vào");
+    }
+  }
+
+  // Kiểm tra người đã đi qua cổng ra chưa
+  if (irOutState == HIGH && isPersonPresentAtExit)
+  {
+    isPersonPresentAtExit = false;
+    if (isExitGateOpen)
+    {
+      delay(1000);
+      closeExitGateSmooth();
+      Serial.println("Đóng cổng ra");
     }
   }
 
   checkParkingSlots();
-  delay(100); // Delay để tránh đọc quá nhanh
+  delay(100);
 }
 
 // Xử lý sự kiện WebSocket
@@ -170,8 +205,9 @@ void handleRoot()
   html += "  var data = JSON.parse(event.data);";
   html += "  document.getElementById('cardId').innerHTML = 'Thẻ mới: ' + data.cardId;";
   html += "  if(data.type === 'parking') {";
-  html += "    for(var i = 0; i < 4; i++) {";
-  html += "      document.getElementById('slot" + String(i) + "').style.backgroundColor = data.slots[i] ? 'red' : 'green';";
+  html += "    var i;";
+  html += "    for(i = 0; i < 6; i++) {";
+  html += "      document.getElementById('slot' + i).style.backgroundColor = data.slots[i] ? 'red' : 'green';";
   html += "    }";
   html += "  }";
   html += "};";
@@ -181,7 +217,7 @@ void handleRoot()
   html += "<div id='cardId'>Đang đợi thẻ...</div>";
   html += "<div style='margin: 20px;'>";
   html += "<h2>Trạng thái bãi đỗ xe</h2>";
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < 6; i++)
   {
     html += "<div id='slot" + String(i) + "' style='width:100px;height:100px;margin:10px;display:inline-block;background-color:" + (parkingSlots[i] ? "red" : "green") + "'>";
     html += "Chỗ " + String(i + 1);
@@ -217,7 +253,7 @@ void closeGateSmooth()
 void checkParkingSlots()
 {
   bool changed = false;
-  bool slots[4];
+  bool slots[6];
   String changedSlots = "";
 
   // Đọc trạng thái các cảm biến
@@ -225,16 +261,16 @@ void checkParkingSlots()
   slots[1] = digitalRead(IR_SLOT2_PIN) == LOW;
   slots[2] = digitalRead(IR_SLOT3_PIN) == LOW;
   slots[3] = digitalRead(IR_SLOT4_PIN) == LOW;
+  slots[4] = digitalRead(IR_SLOT5_PIN) == LOW;
+  slots[5] = digitalRead(IR_SLOT6_PIN) == LOW;
 
-  // Kiểm tra thay đổi và cập nhật LED
-  for (int i = 0; i < 4; i++)
+  // Kiểm tra thay đổi
+  for (int i = 0; i < 6; i++)
   {
     if (slots[i] != parkingSlots[i])
     {
       changed = true;
       parkingSlots[i] = slots[i];
-      // Bật/tắt LED tương ứng
-      digitalWrite(LED_SLOT1_PIN + i, slots[i] ? HIGH : LOW);
 
       // Thêm slot thay đổi vào chuỗi JSON
       if (changedSlots.length() > 0)
@@ -251,4 +287,26 @@ void checkParkingSlots()
     String jsonResponse = "{\"type\":\"parking\",\"changes\":{" + changedSlots + "}}";
     webSocket.broadcastTXT(jsonResponse);
   }
+}
+
+void openExitGateSmooth()
+{
+  for (int angle = currentExitAngle; angle <= 90; angle += STEP)
+  {
+    exitGateServo.write(angle);
+    currentExitAngle = angle;
+    delay(DELAY);
+  }
+  isExitGateOpen = true;
+}
+
+void closeExitGateSmooth()
+{
+  for (int angle = currentExitAngle; angle >= 0; angle -= STEP)
+  {
+    exitGateServo.write(angle);
+    currentExitAngle = angle;
+    delay(DELAY);
+  }
+  isExitGateOpen = false;
 }

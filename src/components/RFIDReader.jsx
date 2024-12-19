@@ -16,7 +16,7 @@ const RFIDReader = ({ onCardRead, onCaptureImage }) => {
         wsRef.current.close();
       }
 
-      const ws = new WebSocket('ws://192.168.33.110:9999');
+      const ws = new WebSocket('ws://192.168.33.117:9999');
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -30,11 +30,13 @@ const RFIDReader = ({ onCardRead, onCaptureImage }) => {
         try {
           const data = JSON.parse(event.data);
           if (data.cardId) {
-            console.log(`Đã quét thẻ RFID - ID: ${data.cardId}`);
+            console.log(`Đã quét thẻ RFID - ID: ${data.cardId} tại ${data.type === 'entry' ? 'cổng vào' : 'cổng ra'}`);
             setLastCardId(data.cardId);
-            onCardRead(data.cardId);
-            setStatus(`Đã đọc thẻ: ${data.cardId}`);
-            setTimeout(onCaptureImage, 100);
+            onCardRead(data.cardId, data.type);
+            setStatus(`Đã đọc thẻ: ${data.cardId} tại ${data.type === 'entry' ? 'cổng vào' : 'cổng ra'}`);
+            if (data.type === 'entry') {
+              setTimeout(onCaptureImage, 100);
+            }
           } else if (data.type === 'parking' && data.changes) {
             fetch('http://localhost:3001/api/slots', {
               method: 'POST',
