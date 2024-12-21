@@ -13,3 +13,6 @@ This project demonstrates how modern IoT devices can be utilized to automate par
 - RFID Scanner: Interfaces with ESP32 via SPI communication.
 - IR Sensor: Detects vehicle presence at the entry/exit point.
 - Servo Motor: Operates the gate mechanism.
+
+## Diagram
+![image](https://github.com/user-attachments/assets/9e034aec-08ac-4f15-b110-b2321002eede)
