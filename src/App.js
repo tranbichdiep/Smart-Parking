@@ -32,6 +32,14 @@ function App() {
         
         const deleteData = await deleteResponse.json();
         if (deleteData.success) {
+          // Gửi lệnh mở cổng ra qua WebSocket
+          if (window.rfidWebSocket && window.rfidWebSocket.readyState === WebSocket.OPEN) {
+            window.rfidWebSocket.send(JSON.stringify({
+              type: 'gate',
+              command: 'open',
+              gateType: 'exit'
+            }));
+          }
           setTotalOut(prev => prev + 1);
           alert(`✅Xác nhận xe ra thành công! ID thẻ: ${idCard}`);
         } else {
@@ -53,6 +61,14 @@ function App() {
         
         const data = await response.json();
         if (data.success) {
+          // Gửi lệnh mở cổng vào qua WebSocket
+          if (window.rfidWebSocket && window.rfidWebSocket.readyState === WebSocket.OPEN) {
+            window.rfidWebSocket.send(JSON.stringify({
+              type: 'gate',
+              command: 'open',
+              gateType: 'entry'
+            }));
+          }
           setTotalIn(prev => prev + 1);
           alert(`✅Xác nhận xe vào thành công! ID thẻ: ${idCard}`);
         }

@@ -4,14 +4,23 @@
 #include <WebServer.h>
 #include <WebSocketsServer.h>
 #include <ESP32Servo.h>
+#include <ArduinoJson.h>
 
 // Định nghĩa chân kết nối RFID-RC522
-#define RST_PIN 22       // Chân cảm biến RST
-#define SS_PIN 21        // Chân cảm biến SS
-#define IR_PIN 25        // Chân cảm biến IR
-#define SERVO_PIN 34     // Chân điều khiển servo
+#define RST_PIN 22 // Chân cảm biến RST
+#define SS_PIN 21  // Chân cảm biến SS
+
+// IR cho cổng vào
+#define IR_PIN 25 // Chân cảm biến IR
+
+// Servo cho cổng vào
+#define SERVO_PIN 34 // Chân điều khiển servo
+
+// Servo cho cổng ra
 #define SERVO_OUT_PIN 35 // Chân điều khiển servo cổng ra
-#define IR_OUT_PIN 33    // Chân cảm biến IR cổng ra
+
+// IR cho cổng ra
+#define IR_OUT_PIN 33 // Chân cảm biến IR cổng ra
 
 // Định nghĩa chân cho 4 cảm biến IR và LED tương ứng
 #define IR_SLOT1_PIN 13 // IR cảm biến chỗ 1
@@ -47,6 +56,12 @@ int currentExitAngle = 0;
 
 // Biến trạng thái chỗ đỗ xe
 bool parkingSlots[6] = {false, false, false, false, false, false}; // false = trống, true = có xe
+
+// Thêm hằng số cho các loại message
+#define MSG_TYPE_CARD "card"
+#define MSG_TYPE_GATE "gate"
+#define GATE_CMD_OPEN "open"
+#define GATE_CMD_CLOSE "close"
 
 void setup()
 {
@@ -131,7 +146,6 @@ void loop()
     String jsonResponse = "{\"cardId\":\"" + cardID + "\",\"type\":\"entry\"}";
     webSocket.broadcastTXT(jsonResponse);
     Serial.println("Thẻ được quét tại cổng vào: " + cardID);
-    openGateSmooth();
     rfid.PICC_HaltA();
     rfid.PCD_StopCrypto1();
   }
@@ -148,7 +162,6 @@ void loop()
     String jsonResponse = "{\"cardId\":\"" + cardID + "\",\"type\":\"exit\"}";
     webSocket.broadcastTXT(jsonResponse);
     Serial.println("Thẻ được quét tại cổng ra: " + cardID);
-    openExitGateSmooth();
     rfid.PICC_HaltA();
     rfid.PCD_StopCrypto1();
   }
@@ -192,6 +205,32 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
   case WStype_CONNECTED:
     Serial.printf("[%u] Đã kết nối!\n", num);
     break;
+  case WStype_TEXT:
+  {
+    String message = String((char *)payload);
+    DynamicJsonDocument doc(200);
+    deserializeJson(doc, message);
+
+    String msgType = doc["type"];
+    if (msgType == "gate")
+    {
+      String command = doc["command"];
+      String gateType = doc["gateType"];
+
+      if (command == "open")
+      {
+        if (gateType == "entry")
+        {
+          openGateSmooth();
+        }
+        else if (gateType == "exit")
+        {
+          openExitGateSmooth();
+        }
+      }
+    }
+    break;
+  }
   }
 }
 
