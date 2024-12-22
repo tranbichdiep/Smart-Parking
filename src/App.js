@@ -12,6 +12,7 @@ function App() {
   const [capturedImage, setCapturedImage] = useState(null);
   const [idCardOut, setIdCardOut] = useState("");
   const [exitTime, setExitTime] = useState("");
+  const [wsConnection, setWsConnection] = useState(null);
   const videoStreamRef = useRef(null);
 
   // Xử lý khi nhấn nút "Xác nhận"
@@ -33,8 +34,8 @@ function App() {
         const deleteData = await deleteResponse.json();
         if (deleteData.success) {
           // Gửi lệnh mở cổng ra qua WebSocket
-          if (window.rfidWebSocket && window.rfidWebSocket.readyState === WebSocket.OPEN) {
-            window.rfidWebSocket.send(JSON.stringify({
+          if (wsConnection && wsConnection.readyState === WebSocket.OPEN) {
+            wsConnection.send(JSON.stringify({
               type: 'gate',
               command: 'open',
               gateType: 'exit'
@@ -62,8 +63,8 @@ function App() {
         const data = await response.json();
         if (data.success) {
           // Gửi lệnh mở cổng vào qua WebSocket
-          if (window.rfidWebSocket && window.rfidWebSocket.readyState === WebSocket.OPEN) {
-            window.rfidWebSocket.send(JSON.stringify({
+          if (wsConnection && wsConnection.readyState === WebSocket.OPEN) {
+            wsConnection.send(JSON.stringify({
               type: 'gate',
               command: 'open',
               gateType: 'entry'
@@ -142,11 +143,16 @@ function App() {
     }
   };
 
+  const handleWebSocketConnect = (ws) => {
+    setWsConnection(ws);
+  };
+
   return (
     <div className="container">
       <RFIDReader 
         onCardRead={handleCardRead}
         onCaptureImage={handleCaptureImage}
+        onWebSocketConnect={handleWebSocketConnect}
       />
       {/* Bảng điều khiển bên trái */}
       <div className="left-panel">

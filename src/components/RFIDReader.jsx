@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 
-const RFIDReader = ({ onCardRead, onCaptureImage }) => {
+const RFIDReader = ({ onCardRead, onCaptureImage, onWebSocketConnect }) => {
   const [status, setStatus] = useState('Đang kết nối...');
   const [error, setError] = useState(null);
   const [lastCardId, setLastCardId] = useState(null);
@@ -24,6 +24,7 @@ const RFIDReader = ({ onCardRead, onCaptureImage }) => {
         setStatus('Đã kết nối - Đang đợi thẻ RFID...');
         setError(null);
         setRetryCount(0);
+        onWebSocketConnect(ws);
       };
 
       ws.onmessage = (event) => {
